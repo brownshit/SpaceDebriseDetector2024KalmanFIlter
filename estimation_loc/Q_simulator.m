@@ -1,0 +1,114 @@
+%For Q and R, with Expectation of process noise.
+
+clear all
+%clc;
+format long;
+
+sigma_square = [0.001, 0.01, 0.1, 1, 10]';
+%Q_memory.
+Q_mat_set = zeros(2,2,5); %by varience
+%this Q is zero mean
+modified_Q_matrix = zeros(2,2,5);
+
+%E([wx;wy])
+Expec_process_set = zeros(2,1,5);
+ABS_Expec_process_set = zeros(2,1,5);
+null_matrix = zeros(2,1,5);
+
+
+%this is diagonal Q matrix (from modified Q.)
+diag_modified_Q_matrix = zeros(2,2,5);
+
+%{
+%set gamma from 0 to 1.
+gamma = 0.05:0.05:0.95;  %stride : 0.05
+%then set optimal gamma
+%gamma decrease linearly Q matrix by each step; After get optiaml gamma,
+%store in optimal gamma by varience.
+optimal_gamma = zeros(1,5);     %by varience
+%}
+
+
+% mean Q
+
+%get Q and Expectiation by varience
+for i = 1:1:5
+    [Q_mat_set(:,:,i),Expec_process_set(:,:,i),~] = get_Q_simulator(sigma_square(i,1),null_matrix(:,:,i),1);
+end
+%modify Q matrix to zero mean.
+for i = 1:1:5
+    [modified_Q_matrix(:,:,i),~,ABS_Expec_process_set(:,:,i)] = get_Q_simulator(sigma_square(i,1),Expec_process_set(:,:,i),1);
+    %Q is modified...!
+    %{
+        also, when we calc vel, eliminate E(w) to compansate process noise
+        vel term : vel*dt + E(w)
+        modified process noise : w'
+        Q = prev_Q - (upper steps for each comp.)
+    %}
+    diag_modified_Q_matrix(1,1,i) = modified_Q_matrix(1,1,i);
+    diag_modified_Q_matrix(1,2,i) = 0;
+    diag_modified_Q_matrix(2,1,i) = 0;
+    diag_modified_Q_matrix(2,2,i) = modified_Q_matrix(2,2,i);
+    % we could testing our performance of diag Q 
+    % after implement Kalman Filter
+
+end
+%find optimal gamma from 
+
+
+disp("we got Q_mean matrix");
+disp(modified_Q_matrix);
+
+fileID = fopen('Q_mean.txt', 'w');
+fprintf(fileID, '%.7f\n', modified_Q_matrix);
+fclose(fileID);
+
+fileID = fopen('E_w_mean.txt', 'w');
+fprintf(fileID, '%.7f\n', Expec_process_set);
+fclose(fileID);
+
+fileID = fopen('abs_E_w_mean.txt', 'w');
+fprintf(fileID, '%.7f\n', ABS_Expec_process_set);
+fclose(fileID);
+
+% max Q
+
+%get Q and Expectiation by varience
+for i = 1:1:5
+    [Q_mat_set(:,:,i),Expec_process_set(:,:,i),~] = get_Q_simulator(sigma_square(i,1),null_matrix(:,:,i),2);
+end
+%modify Q matrix to zero mean.
+for i = 1:1:5
+    [modified_Q_matrix(:,:,i),~,ABS_Expec_process_set(:,:,i)] = get_Q_simulator(sigma_square(i,1),Expec_process_set(:,:,i),2);
+    %Q is modified...!
+    %{
+        also, when we calc vel, eliminate E(w) to compansate process noise
+        vel term : vel*dt + E(w)
+        modified process noise : w'
+        Q = prev_Q - (upper steps for each comp.)
+    %}
+    diag_modified_Q_matrix(1,1,i) = modified_Q_matrix(1,1,i);
+    diag_modified_Q_matrix(1,2,i) = 0;
+    diag_modified_Q_matrix(2,1,i) = 0;
+    diag_modified_Q_matrix(2,2,i) = modified_Q_matrix(2,2,i);
+    % we could testing our performance of diag Q 
+    % after implement Kalman Filter
+
+end
+%find optimal gamma from 
+
+
+disp("we got Q_max matrix");
+disp(modified_Q_matrix);
+
+fileID = fopen('Q_max.txt', 'w');
+fprintf(fileID, '%.7f\n', modified_Q_matrix);
+fclose(fileID);
+
+fileID = fopen('E_w_max.txt', 'w');
+fprintf(fileID, '%.7f\n', Expec_process_set);
+fclose(fileID);
+
+fileID = fopen('abs_E_w_max.txt', 'w');
+fprintf(fileID, '%.7f\n', ABS_Expec_process_set);
+fclose(fileID);

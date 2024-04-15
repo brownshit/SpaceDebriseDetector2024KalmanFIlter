@@ -1,0 +1,11 @@
+function [noise_pos,pres_r] = pos_gen(var,time_ind)
+    r = 10;
+    w = 1;
+    pres_r = r*(1-exp(-1*time_ind));
+    x = pres_r*cos(2*pi*w*time_ind) + sqrt(var)*randn;
+    y = pres_r*sin(2*pi*w*time_ind) + sqrt(var)*randn;
+    
+    act_x = pres_r*cos(2*pi*w*time_ind) + sqrt(var)*randn;
+    y = pres_r*sin(2*pi*w*time_ind) + sqrt(var)*randn;
+    noise_pos = [x;y];
+end
